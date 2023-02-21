@@ -4,6 +4,7 @@ public class Main {
 
     public static void main(String[] args) {
         Gadget gadget = new Gadget(6.06, 2019, "IPhone");
+        Laptop macbook = new Laptop(13.3, 2020, "Air", 16, "Apple M1");
         Phone phone = new Phone("IOS", 6.1, 12, 2022, "IPhone");
         Xiaomi xiaomiRedmi5 = new Xiaomi("Xiaomi", "Android", 5.7, 12, 2017, "Redmi");
         IPhone iPhone11 = new IPhone("IPhone", "IOS", 6.06, 12, 2019, "default", 11);
