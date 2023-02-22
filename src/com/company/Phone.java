@@ -1,11 +1,14 @@
 package com.company;
 
-public class Phone extends Gadget {
-    public String OS;
-    public double cameraMegaPixels;
-    public Phone(String OS, double screenSize,  double cameraMegaPixels, int yearOfIssue, String name) {
-        super(screenSize, yearOfIssue, name);
-        this.OS = OS;
-        this.cameraMegaPixels = cameraMegaPixels;
+public abstract class Phone extends Gadget {
+    public Camera camera;
+    public String model;
+    public int amountOfSIMCards;
+    public Phone(double screenSize, int yearOfIssue, String name, boolean hasBluetooth,
+                 boolean hasWiFi, Camera camera, String model, int amountOfSIMCards) {
+        super(screenSize, yearOfIssue, name, hasBluetooth, hasWiFi);
+        this.camera = camera;
+        this.model = model;
+        this.amountOfSIMCards = amountOfSIMCards;
     }
 }
