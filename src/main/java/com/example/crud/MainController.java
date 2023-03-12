@@ -23,6 +23,7 @@ public class MainController implements Initializable {
     private final ArrayList<TextField> inputs = new ArrayList<>();
     private final String[] classes = {"Tablet", "Laptop", "Smartphone", "PushButtonPhone"};
     private final HashMap<String, Factory> map = new HashMap<>();
+    private final int BLOCK_HEIGHT = 30;
     private ObjectInfo selectedRow;
     private String defaultInputStyles;
     public static String errorMessage = "Check data types";
@@ -199,8 +200,8 @@ public class MainController implements Initializable {
 
     private void changeLabelsAndInputs(ActionEvent e) {
         configureLabelsAndInputs(map.get(ClassChoice.getValue()));
-        AddBtn.setLayoutY(LabelsVBox.getLayoutY() + 30 * (inputs.size() + 1));
-        UpdateBtn.setLayoutY(LabelsVBox.getLayoutY() + 30 * (inputs.size() + 1));
-        DeleteBtn.setLayoutY(LabelsVBox.getLayoutY() + 30 * (inputs.size() + 1));
+        AddBtn.setLayoutY(LabelsVBox.getLayoutY() + BLOCK_HEIGHT * (inputs.size() + 1));
+        UpdateBtn.setLayoutY(LabelsVBox.getLayoutY() + BLOCK_HEIGHT * (inputs.size() + 1));
+        DeleteBtn.setLayoutY(LabelsVBox.getLayoutY() + BLOCK_HEIGHT * (inputs.size() + 1));
     }
 }
