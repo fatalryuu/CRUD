@@ -1,5 +1,7 @@
 package com.example.crud.hierarchy;
 
+import com.example.crud.Name;
+import com.example.crud.Type;
 import javafx.stage.Stage;
 
 public class PushButtonPhone extends Phone {
@@ -8,6 +10,20 @@ public class PushButtonPhone extends Phone {
                            boolean hasWiFi, Camera camera, String model, int amountOfSIMCards,
                            int amountOfButtons) {
         super(name, screenSize, yearOfIssue, hasBluetooth, hasWiFi, camera, model, amountOfSIMCards);
+        this.amountOfButtons = amountOfButtons;
+    }
+    public PushButtonPhone() {
+
+    }
+
+    @Name("Amount of buttons")
+    @Type("Integer")
+    public int getAmountOfButtons() {
+        return amountOfButtons;
+    }
+
+    @Name("Amount of buttons")
+    public void setAmountOfButtons(int amountOfButtons) {
         this.amountOfButtons = amountOfButtons;
     }
 }

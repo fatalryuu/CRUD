@@ -10,25 +10,26 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
     private final ArrayList<Gadget> list = new ArrayList<>();
-    private final ArrayList<Label> labels = new ArrayList<>();
-    private final ArrayList<TextField> inputs = new ArrayList<>();
-    private final String[] classes = {"Tablet", "Laptop", "Smartphone", "PushButtonPhone"};
+    private final String TABLET = "Tablet";
+    private final String LAPTOP = "Laptop";
+    private final String SMARTPHONE = "Smartphone";
+    private final String PUSH_BUTTON_PHONE = "PushButtonPhone";
     private final HashMap<String, Factory> map = new HashMap<>();
-    private final int BLOCK_HEIGHT = 30;
+    private final ObservableList<ObjectInfo> objects = FXCollections.observableArrayList();
+    private ArrayList<Control> inputs;
     private ObjectInfo selectedRow;
-    private String defaultInputStyles;
-    public static String errorMessage = "Check data types";
-
-    ObservableList<ObjectInfo> objects = FXCollections.observableArrayList();
     private boolean isUpdated = false;
 
     @FXML
@@ -56,18 +57,19 @@ public class MainController implements Initializable {
     private TableColumn<ObjectInfo, String> TypeColumn;
 
     @FXML
+    private VBox ContainerVBox;
+
+    @FXML
+    private HBox LabelsAndInputsHBox;
+
+    @FXML
     private VBox InputsVBox;
 
     @FXML
     private VBox LabelsVBox;
 
-    public static void createAlert(String title, String header, String text) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(header);
-        alert.setContentText(text);
-        alert.showAndWait();
-    }
+    @FXML
+    private HBox ButtonsVBox;
 
     void disableElements(boolean isUpdated) {
         AddBtn.setDisable(!isUpdated);
@@ -77,44 +79,46 @@ public class MainController implements Initializable {
         inputs.get(0).setDisable(!isUpdated);
     }
 
+    ArrayList<Label> getLabels() {
+        ArrayList<Label> labels = new ArrayList<>();
+        for (int i = 0; i < LabelsVBox.getChildren().size(); i++) {
+            labels.add((Label) LabelsVBox.getChildren().get(i));
+        }
+        return labels;
+    }
+
     @FXML
     void onAddBtnClick() {
         Factory factory = map.get(ClassChoice.getValue());
-        if (factory.checkInputs(inputs)) {
-            list.add(factory.getGadget(inputs));
-            objects.add(new ObjectInfo(list.size(), inputs.get(0).getText(), ClassChoice.getValue()));
-            for (TextField textField : inputs)
-                textField.setText("");
+
+        if (factory.checkInputs()) {
+            list.add(factory.getGadget());
+            objects.add(new ObjectInfo(list.size(), ((TextField) factory.getInputs().get(0)).getText(), ClassChoice.getValue()));
+            GUI.clearInputs(factory.getInputs(), getLabels());
+            InputsVBox.setSpacing(5);
         } else {
-            createAlert("Error", "Incorrect inputs", errorMessage);
-            errorMessage = "Check data types";
+            InputsVBox.setSpacing(3);
         }
     }
 
     @FXML
     void onUpdateBtnClick() {
         ClassChoice.setValue(selectedRow.getObjectType());
-        disableElements(isUpdated);
         Factory factory = map.get(ClassChoice.getValue());
+        inputs = factory.getInputs();
+        ArrayList<Label> labels = getLabels();
+        disableElements(isUpdated);
         if (!isUpdated) {
-            inputs.get(0).setText(selectedRow.getObjectName());
-            defaultInputStyles = inputs.get(0).getStyle();
-            for (int i = 1; i < inputs.size(); i++) {
-                inputs.get(i).setStyle("-fx-background-color: #00ffc2; -fx-border-width: 1; -fx-border-color: black; -fx-border-radius: 3");
-            }
-            InputsVBox.setSpacing(3);
-            factory.putInfoToInputs(list.get(selectedRow.getId() - 1), inputs);
+            TextField instanceInput = (TextField) inputs.get(0);
+            instanceInput.setText(selectedRow.getObjectName());
+            factory.putInfoToInputs(list.get(selectedRow.getId() - 1), getLabels());
         } else {
-            if (factory.checkInputs(inputs)) {
-                list.set(selectedRow.getId() - 1, factory.getGadget(inputs));
-                for (TextField textField : inputs) {
-                    textField.setStyle(defaultInputStyles);
-                    textField.setText("");
-                }
+            if (factory.checkInputs()) {
+                list.set(selectedRow.getId() - 1, factory.getGadget());
+                GUI.clearInputs(inputs, labels);
                 InputsVBox.setSpacing(5);
             } else {
-                createAlert("Error", "Incorrect inputs", errorMessage);
-                errorMessage = "Check data types";
+                InputsVBox.setSpacing(3);
                 isUpdated = !isUpdated;
                 disableElements(isUpdated);
             }
@@ -124,56 +128,55 @@ public class MainController implements Initializable {
 
     @FXML
     void onDeleteBtnClick() {
-        if (selectedRow != null) {
-            list.remove(selectedRow.getId() - 1);
-            objects.remove(selectedRow.getId() - 1);
-            for (int i = 0; i < objects.size(); i++) {
-                objects.get(i).setId(i + 1);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete object");
+        alert.setHeaderText("Are you sure you want to delete the selected object?");
+        alert.setContentText("This action cannot be returned.");
+
+        ButtonType yesButton = new ButtonType("Yes");
+        ButtonType noButton = new ButtonType("No");
+
+        alert.getButtonTypes().setAll(yesButton, noButton);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent())
+            if (result.get() == yesButton) {
+                list.remove(selectedRow.getId() - 1);
+                objects.remove(selectedRow.getId() - 1);
+                for (int i = 0; i < objects.size(); i++) {
+                    objects.get(i).setId(i + 1);
+                }
+                UpdateBtn.setDisable(true);
+                DeleteBtn.setDisable(true);
+            } else {
+                alert.close();
             }
-            UpdateBtn.setDisable(true);
-            DeleteBtn.setDisable(true);
-        }
     }
 
-    private void initLabelsAndInputs(int amount) {
-        LabelsVBox.setSpacing(5);
-        InputsVBox.setSpacing(5);
-        labels.clear();
-        LabelsVBox.getChildren().clear();
-        inputs.clear();
-        InputsVBox.getChildren().clear();
-        for (int i = 0; i < amount + 1; i++) {
-            Label label = new Label();
-            label.setStyle("-fx-font-size: 16px");
-            TextField input = new TextField();
-            LabelsVBox.getChildren().add(label);
-            InputsVBox.getChildren().add(input);
-            labels.add(label);
-            inputs.add(input);
-        }
+    private void initFactories() {
+        map.put(TABLET, new TabletFactory());
+        map.put(LAPTOP, new LaptopFactory());
+        map.put(SMARTPHONE, new SmartphoneFactory());
+        map.put(PUSH_BUTTON_PHONE, new PushButtonPhoneFactory());
     }
 
-    void initFactories() {
-        map.put("Tablet", new TabletFactory());
-        map.put("Laptop", new LaptopFactory());
-        map.put("Smartphone", new SmartphoneFactory());
-        map.put("PushButtonPhone", new PushButtonPhoneFactory());
-    }
+    private void initGUI() {
+        ClassChoice.getItems().addAll(TABLET, LAPTOP, SMARTPHONE, PUSH_BUTTON_PHONE);
+        ClassChoice.setOnAction(this::onClassChoice);
+        ClassChoice.setValue(TABLET);
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        initFactories();
-        ClassChoice.getItems().addAll(classes);
-        ClassChoice.setOnAction(this::changeLabelsAndInputs);
-        ClassChoice.setValue("Tablet");
-        configureLabelsAndInputs(map.get(ClassChoice.getValue()));
+        map.get(ClassChoice.getValue()).configureLabelsAndInputs(LabelsAndInputsHBox);
+
         IdColumn.setCellValueFactory(new PropertyValueFactory<>("Id"));
         TypeColumn.setCellValueFactory(new PropertyValueFactory<>("ObjectType"));
         NameColumn.setCellValueFactory(new PropertyValueFactory<>("ObjectName"));
         ObjectsTable.setItems(objects);
+
         UpdateBtn.setDisable(true);
         DeleteBtn.setDisable(true);
+    }
 
+    private void initTableWithObjects() {
         list.add(new Tablet("samsung a23", 4, 2014, true, true, "Android", true));
         objects.add(new ObjectInfo(list.size(), "example", "Tablet"));
         list.add(new PushButtonPhone("name", 4, 1999, true, true, new Camera(4.5, 2.7), "swap", 1, 36));
@@ -182,26 +185,25 @@ public class MainController implements Initializable {
         objects.add(new ObjectInfo(list.size(), "iPhone11", "Smartphone"));
     }
 
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        initFactories();
+        initGUI();
+        initTableWithObjects();
+    }
+
     @FXML
     void onInstanceSelected(MouseEvent event) {
         if (event.getClickCount() == 1) {
             selectedRow = ObjectsTable.getSelectionModel().getSelectedItem();
-            UpdateBtn.setDisable(false);
-            DeleteBtn.setDisable(false);
+            if (selectedRow != null) {
+                UpdateBtn.setDisable(false);
+                DeleteBtn.setDisable(false);
+            }
         }
     }
 
-    private void configureLabelsAndInputs(Factory factory) {
-        initLabelsAndInputs(factory.getAmountOfFields());
-        labels.get(0).setText("Name of instance");
-        factory.renameLabels(labels);
-        factory.showLabelsAndInputs(labels, inputs);
-    }
-
-    private void changeLabelsAndInputs(ActionEvent e) {
-        configureLabelsAndInputs(map.get(ClassChoice.getValue()));
-        AddBtn.setLayoutY(LabelsVBox.getLayoutY() + BLOCK_HEIGHT * (inputs.size() + 1));
-        UpdateBtn.setLayoutY(LabelsVBox.getLayoutY() + BLOCK_HEIGHT * (inputs.size() + 1));
-        DeleteBtn.setLayoutY(LabelsVBox.getLayoutY() + BLOCK_HEIGHT * (inputs.size() + 1));
+    private void onClassChoice(ActionEvent e) {
+        map.get(ClassChoice.getValue()).configureLabelsAndInputs(LabelsAndInputsHBox);
     }
 }

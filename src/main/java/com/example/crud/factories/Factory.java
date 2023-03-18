@@ -1,65 +1,54 @@
 package com.example.crud.factories;
 
 import com.example.crud.MainController;
+import com.example.crud.Validations;
+import com.example.crud.hierarchy.Camera;
 import com.example.crud.hierarchy.Gadget;
 import com.example.crud.hierarchy.Phone;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public interface Factory {
-    default void checkDefaultInputs(ArrayList<TextField> inputs) {
-        Double.parseDouble(inputs.get(2).getText());
-        Integer.parseInt(inputs.get(3).getText());
-        Boolean.parseBoolean(inputs.get(4).getText());
-        Boolean.parseBoolean(inputs.get(5).getText());
-    }
+    default void createInstance(ArrayList<String> labelTexts, ArrayList<Control> inputs, HashMap<String, Method> mapOfSetters, HashMap<String, String> mapOfTypes, Gadget instance) {
+        for (int i = 0; i < labelTexts.size(); i++) {
+            try {
+                switch (mapOfTypes.get(labelTexts.get(i))) {
+                    case "Boolean" -> mapOfSetters.get(labelTexts.get(i))
+                            .invoke(instance, ((CheckBox) inputs.get(i + 1)).isSelected());
 
-    default void setTextForDefaultInputs(Gadget gadget, ArrayList<TextField> inputs) {
-        inputs.get(1).setText(gadget.name);
-        inputs.get(2).setText(String.valueOf(gadget.screenSize));
-        inputs.get(3).setText(String.valueOf(gadget.yearOfIssue));
-        inputs.get(4).setText(String.valueOf(gadget.hasBluetooth));
-        inputs.get(5).setText(String.valueOf(gadget.hasWiFi));
-    }
+                    case "Integer" -> mapOfSetters.get(labelTexts.get(i))
+                            .invoke(instance, Integer.parseInt(((TextField) inputs.get(i + 1)).getText()));
 
-    default void setTextForTelephoneInputs(Phone phone, ArrayList<TextField> inputs) {
-        inputs.get(6).setText(String.valueOf(phone.camera.megapixels));
-        inputs.get(7).setText(String.valueOf(phone.camera.zoom));
-        inputs.get(8).setText(phone.model);
-        inputs.get(9).setText(String.valueOf(phone.amountOfSIMCards));
-    }
+                    case "Double" -> {
+                        if (!labelTexts.get(i).startsWith("Camera"))
+                            mapOfSetters.get(labelTexts.get(i)).invoke(instance, Double.parseDouble(((TextField) inputs.get(i + 1)).getText()));
+                        else {
+                            mapOfSetters.get("Camera").invoke(instance,
+                                    new Camera(Double.parseDouble(((TextField) inputs.get(i + 1)).getText()),
+                                            Double.parseDouble(((TextField) inputs.get(i + 2)).getText())));
+                            i++;
+                        }
+                    }
 
-    default boolean isDefaultError(ArrayList<TextField> inputs) {
-        Validations.initErrorsMessages();
-        if (!Validations.checkIfInstanceNameIsCorrect(inputs.get(0).getText())) {
-            MainController.errorMessage = Validations.errorMessages[0];
-            return true;
+                    case "String" -> mapOfSetters.get(labelTexts.get(i))
+                            .invoke(instance, ((TextField) inputs.get(i + 1)).getText());
+                }
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
         }
-        if (!Validations.checkIfTheDoubleValueIsCorrect(inputs.get(2).getText(), 50.0)) {
-            MainController.errorMessage = Validations.errorMessages[2];
-            return true;
-        }
-        if (!Validations.checkIfTheYearIsCorrect(inputs.get(3).getText())) {
-            MainController.errorMessage = Validations.errorMessages[3];
-            return true;
-        }
-        if (!Validations.checkIfTheBooleanValueIsCorrect(inputs.get(4).getText())) {
-            MainController.errorMessage = Validations.errorMessages[4];
-            return true;
-        }
-        if (!Validations.checkIfTheBooleanValueIsCorrect(inputs.get(5).getText())) {
-            MainController.errorMessage = Validations.errorMessages[5];
-            return true;
-        }
-        return false;
     }
-
-    void renameLabels(ArrayList<Label> labels);
-    int getAmountOfFields();
-    void showLabelsAndInputs(ArrayList<Label> labels, ArrayList<TextField> inputs);
-    boolean checkInputs(ArrayList<TextField> inputs);
-    Gadget getGadget(ArrayList<TextField> inputs);
-    void putInfoToInputs(Gadget gadget, ArrayList<TextField> inputs);
+    void configureLabelsAndInputs(HBox container);
+    boolean checkInputs();
+    Gadget getGadget();
+    ArrayList<Control> getInputs();
+    void putInfoToInputs(Gadget gadget, ArrayList<Label> labels);
 }

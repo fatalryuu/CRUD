@@ -1,5 +1,7 @@
 package com.example.crud.hierarchy;
 
+import com.example.crud.Name;
+import com.example.crud.Type;
 import javafx.stage.Stage;
 
 public class Laptop extends Gadget {
@@ -12,6 +14,42 @@ public class Laptop extends Gadget {
         super(name, screenSize, yearOfIssue, hasBluetooth, hasWiFi);
         this.memory = memory;
         this.hasTouchpad = hasTouchpad;
+        this.OS = OS;
+    }
+    public Laptop() {
+
+    }
+
+    @Name("Memory(GB)")
+    @Type("Integer")
+    public int getMemory() {
+        return memory;
+    }
+
+    @Name("Memory(GB)")
+    public void setMemory(int memory) {
+        this.memory = memory;
+    }
+
+    @Name("Has touchpad")
+    @Type("Boolean")
+    public boolean getHasTouchpad() {
+        return hasTouchpad;
+    }
+
+    @Name("Has touchpad")
+    public void setHasTouchpad(boolean hasTouchpad) {
+        this.hasTouchpad = hasTouchpad;
+    }
+
+    @Name("OS")
+    @Type("String")
+    public String getOS() {
+        return OS;
+    }
+
+    @Name("OS")
+    public void setOS(String OS) {
         this.OS = OS;
     }
 }

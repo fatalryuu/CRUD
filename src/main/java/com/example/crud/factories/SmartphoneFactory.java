@@ -1,92 +1,61 @@
 package com.example.crud.factories;
 
-import com.example.crud.MainController;
-import com.example.crud.hierarchy.Camera;
+import com.example.crud.GUI;
+import com.example.crud.Maps;
+import com.example.crud.Name;
+import com.example.crud.Validations;
 import com.example.crud.hierarchy.Gadget;
 import com.example.crud.hierarchy.Smartphone;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class SmartphoneFactory implements Factory {
-    private final String[] labelTexts = {"Name", "Screen size", "Year of issue", "Has Bluetooth",
-            "Has WiFi", "Camera(megapixels)", "Camera(zoom)", "Model", "Amount of SIM cards", "OS",
-            "Supported network"};
-    @Override
-    public void renameLabels(ArrayList<Label> labels) {
-        for (int i = 0; i < labelTexts.length; i++) {
-            labels.get(i + 1).setText(labelTexts[i]);
+    private final ArrayList<String> labelTexts;
+    private static ArrayList<Control> inputs;
+
+    public SmartphoneFactory() {
+        labelTexts = new ArrayList<>();
+        Class<?> smartphoneClass = Smartphone.class;
+        for (Method method : Arrays.stream(smartphoneClass.getMethods()).filter(x -> x.getName().startsWith("get")).toList()) {
+            if (method.isAnnotationPresent(Name.class))
+                labelTexts.add(method.getAnnotation(Name.class).value());
         }
     }
 
     @Override
-    public int getAmountOfFields() {
-        return labelTexts.length;
+    public void configureLabelsAndInputs(HBox container) {
+        inputs = GUI.createLabelsAndInputs(container, labelTexts);
     }
 
     @Override
-    public void showLabelsAndInputs(ArrayList<Label> labels, ArrayList<TextField> inputs) {
-        for (int i = 0; i < labels.size(); i++) {
-            labels.get(i).setVisible(i < labelTexts.length + 1);
-            inputs.get(i).setVisible(i < labelTexts.length + 1);
-        }
+    public boolean checkInputs() {
+        return Validations.checkInputs(inputs, labelTexts, Smartphone.class);
     }
 
     @Override
-    public boolean checkInputs(ArrayList<TextField> inputs) {
-        try {
-            checkDefaultInputs(inputs);
-            Double.parseDouble(inputs.get(6).getText());
-            Double.parseDouble(inputs.get(7).getText());
-            inputs.get(8).getText();
-            Integer.parseInt(inputs.get(9).getText());
-            inputs.get(10).getText();
-            inputs.get(11).getText();
-        } catch (Exception e) {
-            return false;
-        }
-        if (isDefaultError(inputs))
-            return false;
-        if (!Validations.checkIfTheDoubleValueIsCorrect(inputs.get(6).getText(), 24.0)) {
-            MainController.errorMessage = Validations.errorMessages[6];
-            return false;
-        }
-        if (!Validations.checkIfTheDoubleValueIsCorrect(inputs.get(7).getText(), 200.0)) {
-            MainController.errorMessage = Validations.errorMessages[7];
-            return false;
-        }
-        if (!Validations.checkIfTheIntegerValueIsCorrect(inputs.get(9).getText(), 4)) {
-            MainController.errorMessage = Validations.errorMessages[9];
-            return false;
-        }
-        if (!Validations.checkIfTheOsIsCorrect(inputs.get(10).getText())) {
-            MainController.errorMessage = Validations.errorMessages[10];
-            return false;
-        }
-        if (!Validations.checkIfTheNetworkIsCorrect(inputs.get(11).getText())) {
-            MainController.errorMessage = Validations.errorMessages[11];
-            return false;
-        }
-        return true;
+    public Gadget getGadget() {
+        Smartphone smartphone = new Smartphone();
+        HashMap<String, Method> mapOfSetters = Maps.getMapOfSettersOrGetters("set", Smartphone.class);
+        HashMap<String, String> mapOfTypes = Maps.getMapOfTypes(Smartphone.class);
+        createInstance(labelTexts, inputs, mapOfSetters, mapOfTypes, smartphone);
+        return smartphone;
     }
 
     @Override
-    public Gadget getGadget(ArrayList<TextField> inputs) {
-        return new Smartphone(inputs.get(1).getText(), Double.parseDouble(inputs.get(2).getText()),
-                Integer.parseInt(inputs.get(3).getText()), Boolean.parseBoolean(inputs.get(4).getText()),
-                Boolean.parseBoolean(inputs.get(5).getText()),
-                new Camera(Double.parseDouble(inputs.get(6).getText()), Double.parseDouble(inputs.get(7).getText())),
-                inputs.get(8).getText(), Integer.parseInt(inputs.get(9).getText()),
-                inputs.get(10).getText(), inputs.get(11).getText());
+    public ArrayList<Control> getInputs() {
+        return inputs;
     }
 
     @Override
-    public void putInfoToInputs(Gadget gadget, ArrayList<TextField> inputs) {
+    public void putInfoToInputs(Gadget gadget, ArrayList<Label> labels) {
         Smartphone smartphone = (Smartphone) gadget;
-        setTextForDefaultInputs(gadget, inputs);
-        setTextForTelephoneInputs(smartphone, inputs);
-        inputs.get(10).setText(smartphone.OS);
-        inputs.get(11).setText(smartphone.supportedNetwork);
+        HashMap<String, Method> map = Maps.getMapOfSettersOrGetters("get", Smartphone.class);
+        GUI.putInfoToInputs(labels, inputs, map, smartphone);
     }
 }

@@ -1,72 +1,60 @@
 package com.example.crud.factories;
 
-import com.example.crud.MainController;
+import com.example.crud.GUI;
+import com.example.crud.Maps;
+import com.example.crud.Name;
+import com.example.crud.Validations;
 import com.example.crud.hierarchy.Gadget;
 import com.example.crud.hierarchy.Tablet;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class TabletFactory implements Factory {
-    private final String[] labelTexts = {"Name", "Screen size", "Year of issue", "Has Bluetooth", "Has WiFi", "OS", "Has SIM slot"};
-
-    @Override
-    public void renameLabels(ArrayList<Label> labels) {
-        for (int i = 0; i < labelTexts.length; i++) {
-            labels.get(i + 1).setText(labelTexts[i]);
+    private final ArrayList<String> labelTexts;
+    private static ArrayList<Control> inputs;
+    public TabletFactory() {
+        labelTexts = new ArrayList<>();
+        Class<?> tabletClass = Tablet.class;
+        for (Method method : Arrays.stream(tabletClass.getMethods()).filter(x -> x.getName().startsWith("get")).toList()) {
+            if (method.isAnnotationPresent(Name.class))
+                labelTexts.add(method.getAnnotation(Name.class).value());
         }
     }
 
     @Override
-    public int getAmountOfFields() {
-        return labelTexts.length;
+    public void configureLabelsAndInputs(HBox container) {
+        inputs = GUI.createLabelsAndInputs(container, labelTexts);
     }
 
     @Override
-    public void showLabelsAndInputs(ArrayList<Label> labels, ArrayList<TextField> inputs) {
-        for (int i = 0; i < labels.size(); i++) {
-            labels.get(i).setVisible(i < labelTexts.length + 1);
-            inputs.get(i).setVisible(i < labelTexts.length + 1);
-        }
+    public boolean checkInputs() {
+        return Validations.checkInputs(inputs, labelTexts, Tablet.class);
     }
 
     @Override
-    public boolean checkInputs(ArrayList<TextField> inputs) {
-        try {
-            checkDefaultInputs(inputs);
-            inputs.get(6).getText();
-            Boolean.parseBoolean(inputs.get(7).getText());
-        } catch (Exception e) {
-            return false;
-        }
-
-        if (isDefaultError(inputs))
-            return false;
-        if (!Validations.checkIfTheOsIsCorrect(inputs.get(6).getText())) {
-            MainController.errorMessage = Validations.errorMessages[6];
-            return false;
-        }
-        if (!Validations.checkIfTheBooleanValueIsCorrect(inputs.get(7).getText())) {
-            MainController.errorMessage = Validations.errorMessages[7];
-            return false;
-        }
-        return true;
+    public Gadget getGadget() {
+        Tablet tablet = new Tablet();
+        HashMap<String, Method> mapOfSetters = Maps.getMapOfSettersOrGetters("set", Tablet.class);
+        HashMap<String, String> mapOfTypes = Maps.getMapOfTypes(Tablet.class);
+        createInstance(labelTexts, inputs, mapOfSetters, mapOfTypes, tablet);
+        return tablet;
     }
 
     @Override
-    public Gadget getGadget(ArrayList<TextField> inputs) {
-        return new Tablet(inputs.get(1).getText(), Double.parseDouble(inputs.get(2).getText()),
-            Integer.parseInt(inputs.get(3).getText()), Boolean.parseBoolean(inputs.get(4).getText()),
-            Boolean.parseBoolean(inputs.get(5).getText()), inputs.get(6).getText(),
-            Boolean.parseBoolean(inputs.get(7).getText()));
+    public ArrayList<Control> getInputs() {
+        return inputs;
     }
 
     @Override
-    public void putInfoToInputs(Gadget gadget, ArrayList<TextField> inputs) {
+    public void putInfoToInputs(Gadget gadget, ArrayList<Label> labels) {
         Tablet tablet = (Tablet) gadget;
-        setTextForDefaultInputs(gadget, inputs);
-        inputs.get(6).setText(tablet.OS);
-        inputs.get(7).setText(String.valueOf(tablet.hasSIMCardSlot));
+        HashMap<String, Method> map = Maps.getMapOfSettersOrGetters("get", Tablet.class);
+        GUI.putInfoToInputs(labels, inputs, map, tablet);
     }
 }
