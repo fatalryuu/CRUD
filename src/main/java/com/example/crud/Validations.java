@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 public class Validations {
     private static void recolorInput(TextField input, String color) {
-        input.setStyle("-fx-background-color: " + color + "; -fx-border-width: 1; -fx-border-color: black; -fx-border-radius: 3");
+        input.setStyle("-fx-background-color: white; -fx-border-width: 1; -fx-border-color: " + color + "; -fx-border-radius: 3");
     }
 
     public static boolean checkIfTheStringValueIsCorrect(TextField input) {
