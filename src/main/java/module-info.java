@@ -3,6 +3,7 @@ module com.example.crud {
     requires javafx.fxml;
     requires com.google.gson;
     requires gson.extras;
+    requires junit;
 
 
     opens com.example.crud to javafx.fxml;
@@ -11,4 +12,5 @@ module com.example.crud {
     opens com.example.crud.hierarchy to javafx.fxml;
     exports com.example.crud.factories;
     opens com.example.crud.factories to javafx.fxml;
+    exports com.example.crud.Tests;
 }

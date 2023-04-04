@@ -28,7 +28,6 @@ public class JSONSerializer implements Serializer {
         Type type = new TypeToken<ArrayList<Gadget>>(){}.getType();
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path))) {
             bufferedWriter.write(gson.toJson(gadgets, type));
-            createAlert(Alert.AlertType.INFORMATION, "Save info", "File was successfully serialized!", "Gadgets info was written to the file");
         } catch (IOException e) {
             createAlert(Alert.AlertType.ERROR, "File error", "Error while JSON file serialization!", "Check file info");
         }
@@ -41,7 +40,6 @@ public class JSONSerializer implements Serializer {
         String json = "";
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(path))) {
             json = bufferedReader.readLine();
-            createAlert(Alert.AlertType.INFORMATION, "Open info", "File was successfully deserialized!", "Gadgets info from the file was placed to the table");
         } catch (IOException e) {
             createAlert(Alert.AlertType.ERROR, "File error", "Error while JSON file deserialization!", "Check file info");
         }

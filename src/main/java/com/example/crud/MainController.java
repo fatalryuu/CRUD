@@ -267,6 +267,7 @@ public class MainController implements Initializable {
             String ext = getExtension(path);
             if (ext.equals(BIN_EXT) || ext.equals(JSON_EXT) || ext.equals(TEXT_EXT)) {
                 mapOfSerializers.get(ext).serialize(gadgets, path);
+                createAlert(Alert.AlertType.INFORMATION, "Save info", "File was successfully serialized!", "Gadgets info was written to the file");
             } else {
                 createAlert(Alert.AlertType.ERROR, "Unknown format", "Unknown file format!", "Please, select file with \".bin\", \".json\" or \".txt\" extensions");
             }
@@ -280,6 +281,7 @@ public class MainController implements Initializable {
             String ext = getExtension(path);
             if (ext.equals(BIN_EXT) || ext.equals(JSON_EXT) || ext.equals(TEXT_EXT)) {
                 gadgets = mapOfSerializers.get(ext).deserialize(path);
+                createAlert(Alert.AlertType.INFORMATION, "Open info", "File was successfully deserialized!", "Gadgets info from the file was placed to the table");
                 objects.clear();
                 for (int i = 0; i < gadgets.size(); i++) {
                     objects.add(new ObjectInfo(i + 1, gadgets.get(i).getName(), getObjectType(gadgets.get(i))));

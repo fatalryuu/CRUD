@@ -54,7 +54,6 @@ public class TextSerializer implements Serializer {
                 }
                 bufferedWriter.write("}\n");
             }
-            createAlert(Alert.AlertType.INFORMATION, "Save info", "File was successfully serialized!", "Gadgets info was written to the file");
         } catch (Exception e) {
             createAlert(Alert.AlertType.ERROR, "File error", "Error while text file serialization!", "Check file info");
         }
@@ -137,7 +136,6 @@ public class TextSerializer implements Serializer {
                 }
                 str = bufferedReader.readLine();
             }
-            createAlert(Alert.AlertType.INFORMATION, "Open info", "File was successfully deserialized!", "Gadgets info from the file was placed to the table");
         } catch (Exception e) {
             createAlert(Alert.AlertType.ERROR, "File error", "Error while text file deserialization!", "Check file info");
         }
