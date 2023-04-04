@@ -13,7 +13,7 @@ public class Validations {
     }
 
     public static boolean checkIfTheStringValueIsCorrect(TextField input) {
-        boolean isCorrect = input.getText().matches("^[a-zA-Z]+[a-zA-Z0-9\\s]*$");
+        boolean isCorrect = input.getText().matches("^[a-zA-Z]+[a-zA-Z0-9\\s-_]*$");
         if (!isCorrect)
             recolorInput(input, "#ff0000");
         else
@@ -103,7 +103,7 @@ public class Validations {
         for (int i = 0; i < map.size(); i++) {
             isCorrects[i] = true;
         }
-        isCorrects[0] = checkIfInstanceNameIsCorrect((TextField) inputs.get(0)); //instance name
+        isCorrects[0] = true;//checkIfInstanceNameIsCorrect((TextField) inputs.get(0)); //instance name
         for (int i = 1; i < labelsTexts.size() + 1; i++) {
             switch (map.get(labelsTexts.get(i - 1))) {
                 case "String" -> {

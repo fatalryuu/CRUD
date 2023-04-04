@@ -4,7 +4,9 @@ import com.example.crud.Name;
 import com.example.crud.Type;
 import javafx.stage.Stage;
 
-public class PushButtonPhone extends Phone {
+import java.io.Serializable;
+
+public class PushButtonPhone extends Phone implements Serializable {
     public int amountOfButtons;
     public PushButtonPhone(String name, double screenSize, int yearOfIssue, boolean hasBluetooth,
                            boolean hasWiFi, Camera camera, String model, int amountOfSIMCards,

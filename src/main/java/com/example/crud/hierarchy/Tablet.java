@@ -3,8 +3,10 @@ package com.example.crud.hierarchy;
 import com.example.crud.Name;
 import com.example.crud.Type;
 
+import java.io.Serializable;
+
 @Name("Tablet")
-public class Tablet extends Gadget {
+public class Tablet extends Gadget implements Serializable {
     public String OS;
     public boolean hasSIMCardSlot;
 

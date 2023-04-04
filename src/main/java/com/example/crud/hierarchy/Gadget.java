@@ -3,13 +3,15 @@ package com.example.crud.hierarchy;
 import com.example.crud.Name;
 import com.example.crud.Type;
 
+import java.io.Serializable;
+
 @Name("Gadget")
-public abstract class Gadget {
-    private String name;
-    private double screenSize;
-    private int yearOfIssue;
-    private boolean hasBluetooth;
-    private boolean hasWiFi;
+public abstract class Gadget implements Serializable {
+    public String name;
+    public double screenSize;
+    public int yearOfIssue;
+    public boolean hasBluetooth;
+    public boolean hasWiFi;
     public Gadget(String name, double screenSize, int yearOfIssue, boolean hasBluetooth, boolean hasWiFi) {
         this.screenSize = screenSize;
         this.yearOfIssue = yearOfIssue;

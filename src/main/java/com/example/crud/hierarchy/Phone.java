@@ -3,7 +3,9 @@ package com.example.crud.hierarchy;
 import com.example.crud.Name;
 import com.example.crud.Type;
 
-public abstract class Phone extends Gadget {
+import java.io.Serializable;
+
+public abstract class Phone extends Gadget implements Serializable {
     public Camera camera;
     public String model;
     public int amountOfSIMCards;

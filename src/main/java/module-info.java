@@ -1,6 +1,8 @@
 module com.example.crud {
     requires javafx.controls;
     requires javafx.fxml;
+    requires com.google.gson;
+    requires gson.extras;
 
 
     opens com.example.crud to javafx.fxml;

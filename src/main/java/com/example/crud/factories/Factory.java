@@ -17,7 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public interface Factory {
-    default void createInstance(ArrayList<String> labelTexts, ArrayList<Control> inputs, HashMap<String, Method> mapOfSetters, HashMap<String, String> mapOfTypes, Gadget instance) {
+    default void createInstance(ArrayList<String> labelTexts, ArrayList<Control> inputs, HashMap<String,
+            Method> mapOfSetters, HashMap<String, String> mapOfTypes, Gadget instance) {
         for (int i = 0; i < labelTexts.size(); i++) {
             try {
                 switch (mapOfTypes.get(labelTexts.get(i))) {

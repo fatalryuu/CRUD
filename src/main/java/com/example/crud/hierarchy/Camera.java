@@ -3,7 +3,9 @@ package com.example.crud.hierarchy;
 import com.example.crud.Name;
 import com.example.crud.Type;
 
-public class Camera {
+import java.io.Serializable;
+
+public class Camera implements Serializable {
     public double megapixels;
     public double zoom;
     public Camera(double megapixels, double zoom) {
