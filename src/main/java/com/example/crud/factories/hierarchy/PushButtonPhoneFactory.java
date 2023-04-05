@@ -1,9 +1,9 @@
-package com.example.crud.factories;
+package com.example.crud.factories.hierarchy;
 
-import com.example.crud.GUI;
-import com.example.crud.Maps;
-import com.example.crud.Name;
-import com.example.crud.Validations;
+import com.example.crud.Utils.GUI;
+import com.example.crud.Utils.Maps;
+import com.example.crud.Utils.Name;
+import com.example.crud.Utils.Validations;
 import com.example.crud.hierarchy.Gadget;
 import com.example.crud.hierarchy.PushButtonPhone;
 import javafx.scene.control.Control;

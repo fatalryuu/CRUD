@@ -1,8 +1,7 @@
 package com.example.crud.serialize;
 
-import com.example.crud.Maps;
+import com.example.crud.Utils.Maps;
 import com.example.crud.hierarchy.Gadget;
-import com.example.crud.hierarchy.Tablet;
 import javafx.scene.control.Alert;
 
 import java.io.BufferedReader;
@@ -30,7 +29,7 @@ public class TextSerializer implements Serializer {
         StringBuilder result = new StringBuilder();
         HashMap<String, Method> map = Maps.getMapOfSettersOrGetters("get", obj.getClass());
         for (String key : map.keySet()) {
-            result.append(TAB + TAB).append(key).append(ARROW).append(map.get(key).invoke(obj)).append(";\n");
+            result.append(TAB + TAB).append(key).append(ARROW).append(map.get(key).invoke(obj)).append("\n");
         }
         return result.toString();
     }
@@ -45,7 +44,7 @@ public class TextSerializer implements Serializer {
                 for (String key : map.keySet()) {
                     String returnType = map.get(key).getReturnType().getSimpleName();
                     if (returnType.equals("int") || returnType.equals("boolean") || returnType.equals("double") || returnType.equals("String")) {
-                        bufferedWriter.write(TAB + key + ARROW + map.get(key).invoke(gadget) + ";\n");
+                        bufferedWriter.write(TAB + key + ARROW + map.get(key).invoke(gadget) + "\n");
                     } else {
                         bufferedWriter.write(TAB + key + ARROW + "{\n");
                         bufferedWriter.write(getClassFieldsString(map.get(key).invoke(gadget)));
@@ -76,9 +75,7 @@ public class TextSerializer implements Serializer {
         String substr = "";
         char[] chars = str.toCharArray();
         for (int i = str.indexOf('>') + 1; i < chars.length; i++) {
-            if (chars[i] != ';') {
-                substr += chars[i];
-            }
+            substr += chars[i];
         }
         return substr.trim();
     }
@@ -117,7 +114,7 @@ public class TextSerializer implements Serializer {
                         gadgets.add((Gadget) instance);
                         instance = null;
                     }
-                } else if (str.endsWith(";")) {
+                } else {
                     String field = getStringBeforeArrow(str);
                     String value = getStringAfterArrow(str);
                     switch (mapOfTypes.get(field)) {

@@ -1,8 +1,7 @@
 package com.example.crud.hierarchy;
 
-import com.example.crud.Name;
-import com.example.crud.Type;
-import javafx.stage.Stage;
+import com.example.crud.Utils.Name;
+import com.example.crud.Utils.Type;
 
 import java.io.Serializable;
 

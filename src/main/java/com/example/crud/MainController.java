@@ -1,11 +1,14 @@
 package com.example.crud;
 
-import com.example.crud.factories.*;
+import com.example.crud.Utils.CustomFileChooser;
+import com.example.crud.Utils.GUI;
+import com.example.crud.Utils.ObjectInfo;
+import com.example.crud.factories.hierarchy.*;
+import com.example.crud.factories.serializers.BinarySerializerFactory;
+import com.example.crud.factories.serializers.JSONSerializerFactory;
+import com.example.crud.factories.serializers.SerializerFactory;
+import com.example.crud.factories.serializers.TextSerializerFactory;
 import com.example.crud.hierarchy.*;
-import com.example.crud.serialize.BinarySerializer;
-import com.example.crud.serialize.JSONSerializer;
-import com.example.crud.serialize.Serializer;
-import com.example.crud.serialize.TextSerializer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -16,10 +19,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
-import java.io.*;
 import java.net.URL;
 import java.util.*;
 
@@ -28,11 +28,8 @@ public class MainController implements Initializable {
     public static final String LAPTOP = "Laptop";
     public static final String SMARTPHONE = "Smartphone";
     public static final String PUSH_BUTTON_PHONE = "PushButtonPhone";
-    private final String BIN_EXT = "bin";
-    private final String JSON_EXT = "json";
-    private final String TEXT_EXT = "txt";
     private final HashMap<String, Factory> mapOfFactories = new HashMap<>();
-    private final HashMap<String, Serializer> mapOfSerializers = new HashMap<>();
+    private final HashMap<String, SerializerFactory> mapOfSerializers = new HashMap<>();
     private final ObservableList<ObjectInfo> objects = FXCollections.observableArrayList();
     private ArrayList<Gadget> gadgets = new ArrayList<>();
     private ArrayList<Control> inputs;
@@ -168,9 +165,9 @@ public class MainController implements Initializable {
     }
 
     private void initSerializers() {
-        mapOfSerializers.put(BIN_EXT, new BinarySerializer());
-        mapOfSerializers.put(JSON_EXT, new JSONSerializer());
-        mapOfSerializers.put(TEXT_EXT, new TextSerializer());
+        mapOfSerializers.put("bin", new BinarySerializerFactory());
+        mapOfSerializers.put("json", new JSONSerializerFactory());
+        mapOfSerializers.put("txt", new TextSerializerFactory());
     }
 
     private void initGUI() {
@@ -229,18 +226,6 @@ public class MainController implements Initializable {
         DeleteBtn.setDisable(true);
     }
 
-    private String getFilePath() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select file");
-        try {
-            File fileObject = fileChooser.showOpenDialog(new Stage());
-            return fileObject.getPath();
-        } catch (Exception e) {
-            System.err.println("Select file!");
-            return "";
-        }
-    }
-
     private String getExtension(String path) {
         String[] parts = path.split("\\.");
         return parts[parts.length - 1];
@@ -262,32 +247,22 @@ public class MainController implements Initializable {
 
     @FXML
     void onFileSaveClick() {
-        String path = getFilePath();
+        String path = CustomFileChooser.getFilePathSave();
         if (path.length() != 0) {
             String ext = getExtension(path);
-            if (ext.equals(BIN_EXT) || ext.equals(JSON_EXT) || ext.equals(TEXT_EXT)) {
-                mapOfSerializers.get(ext).serialize(gadgets, path);
-                createAlert(Alert.AlertType.INFORMATION, "Save info", "File was successfully serialized!", "Gadgets info was written to the file");
-            } else {
-                createAlert(Alert.AlertType.ERROR, "Unknown format", "Unknown file format!", "Please, select file with \".bin\", \".json\" or \".txt\" extensions");
-            }
+            mapOfSerializers.get(ext).getSerializer().serialize(gadgets, path);
         }
     }
 
     @FXML
     void onFileOpenClick() {
-        String path = getFilePath();
+        String path = CustomFileChooser.getFilePathOpen();
         if (path.length() != 0) {
             String ext = getExtension(path);
-            if (ext.equals(BIN_EXT) || ext.equals(JSON_EXT) || ext.equals(TEXT_EXT)) {
-                gadgets = mapOfSerializers.get(ext).deserialize(path);
-                createAlert(Alert.AlertType.INFORMATION, "Open info", "File was successfully deserialized!", "Gadgets info from the file was placed to the table");
-                objects.clear();
-                for (int i = 0; i < gadgets.size(); i++) {
-                    objects.add(new ObjectInfo(i + 1, gadgets.get(i).getName(), getObjectType(gadgets.get(i))));
-                }
-            } else {
-                createAlert(Alert.AlertType.ERROR, "Unknown format", "Unknown file format!", "Please, select file with \".bin\", \".json\" or \".txt\" extensions");
+            gadgets = mapOfSerializers.get(ext).getSerializer().deserialize(path);
+            objects.clear();
+            for (int i = 0; i < gadgets.size(); i++) {
+                objects.add(new ObjectInfo(i + 1, gadgets.get(i).getName(), getObjectType(gadgets.get(i))));
             }
         }
     }

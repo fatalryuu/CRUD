@@ -1,4 +1,4 @@
-package com.example.crud;
+package com.example.crud.Utils;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

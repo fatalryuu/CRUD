@@ -1,4 +1,4 @@
-package com.example.crud;
+package com.example.crud.Utils;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Control;
@@ -108,10 +108,10 @@ public class Validations {
             switch (map.get(labelsTexts.get(i - 1))) {
                 case "String" -> {
                     switch (labelsTexts.get(i - 1)) {
-                        case "Name" -> isCorrects[i] = checkIfTheStringValueIsCorrect((TextField) inputs.get(i));
+                        case "Name" -> isCorrects[i] = true;//checkIfTheStringValueIsCorrect((TextField) inputs.get(i));
                         case "OS" -> isCorrects[i] = checkIfTheOsIsCorrect((TextField) inputs.get(i));
                         case "Supported network" -> isCorrects[i] = checkIfTheNetworkIsCorrect((TextField) inputs.get(i));
-                        case "Model" -> isCorrects[i] = checkIfModelIsCorrect((TextField) inputs.get(i));
+                        case "Model" -> isCorrects[i] = true;//checkIfModelIsCorrect((TextField) inputs.get(i));
                     }
                 }
                 case "Integer" -> {
