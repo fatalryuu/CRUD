@@ -278,7 +278,7 @@ public class MainController implements Initializable {
             String ext = getExtension(selectedFile.getPath());
             boolean isEncoded = checkIfIsEncoded(ext);
             if (isEncoded) {
-                decodeAndDeserialize();
+                decodeAndDeserialize(ext);
             } else {
                 gadgets = mapOfSerializers.get(ext).getSerializer().deserialize(selectedFile.getPath());
             }
@@ -311,7 +311,14 @@ public class MainController implements Initializable {
         changeGUIForSaving(true);
     }
 
-    boolean checkIfIsEncoded(String ext) {
+    @FXML
+    void onConfirmPluginClick(ActionEvent event) {
+        serialize();
+        encode();
+        changeGUIForSaving(false);
+    }
+
+    private boolean checkIfIsEncoded(String ext) {
         for (String key : mapOfPlugins.keySet()) {
             if (mapOfPlugins.get(key).getExtension().equals(ext)) {
                 return true;
@@ -320,22 +327,21 @@ public class MainController implements Initializable {
         return false;
     }
 
-    void decodeAndDeserialize() {
+    private void decodeAndDeserialize(String pluginExtension) {
         byte[] byteArray = new byte[(int) selectedFile.length()];
         try {
             FileInputStream fr = new FileInputStream(selectedFile.getPath());
             fr.read(byteArray, 0, byteArray.length);
             fr.close();
-            String ext = getExtension(selectedFile.getPath());
             String pluginName = "";
             for (String key : mapOfPlugins.keySet()) {
-                if (mapOfPlugins.get(key).getExtension().equals(ext)) {
+                if (mapOfPlugins.get(key).getExtension().equals(pluginExtension)) {
                     pluginName = mapOfPlugins.get(key).getName();
                     break;
                 }
             }
-            ext = getExtension(selectedFile.getPath().substring(0, selectedFile.getPath().lastIndexOf(".")));
             byteArray = mapOfPlugins.get(pluginName).decode(byteArray);
+            String ext = getExtension(selectedFile.getPath().substring(0, selectedFile.getPath().lastIndexOf(".")));
             File tmpFile = new File(selectedFile.getName() + "." + ext);
             FileOutputStream fw = new FileOutputStream(tmpFile);
             fw.write(byteArray);
@@ -347,7 +353,27 @@ public class MainController implements Initializable {
         }
     }
 
-    public void loadPlugins() {
+    private void encode() {
+        if (selectedFile != null && !PluginChoice.getValue().equals(NONE)) {
+            String newPath = selectedFile.getPath() + "." + mapOfPlugins.get(PluginChoice.getValue()).getExtension();
+            long fileLength = selectedFile.length();
+            selectedFile.renameTo(new File(newPath));
+            byte[] byteArray = new byte[(int) fileLength];
+            try {
+                FileInputStream fr = new FileInputStream(newPath);
+                fr.read(byteArray, 0, byteArray.length);
+                fr.close();
+                byteArray = mapOfPlugins.get(PluginChoice.getValue()).encode(byteArray);
+                FileOutputStream fw = new FileOutputStream(newPath);
+                fw.write(byteArray);
+                fw.close();
+            } catch (Exception e) {
+                createAlert(Alert.AlertType.ERROR, "File Error", "Error while serialization", "");
+            }
+        }
+    }
+
+    private void loadPlugins() {
         final String PATH = "src\\main\\java\\com\\example\\crud\\plugins\\impl";
         final String PREFIX = "com.example.crud.plugins.impl.";
         mapOfPlugins.clear();
@@ -376,32 +402,5 @@ public class MainController implements Initializable {
         AddBtn.setVisible(!isBefore);
         UpdateBtn.setVisible(!isBefore);
         DeleteBtn.setVisible(!isBefore);
-    }
-
-    private void encode() {
-        if (selectedFile != null && !PluginChoice.getValue().equals(NONE)) {
-            String newPath = selectedFile.getPath() + "." + mapOfPlugins.get(PluginChoice.getValue()).getExtension();
-            long fileLength = selectedFile.length();
-            selectedFile.renameTo(new File(newPath));
-            byte[] byteArray = new byte[(int) fileLength];
-            try {
-                FileInputStream fr = new FileInputStream(newPath);
-                fr.read(byteArray, 0, byteArray.length);
-                fr.close();
-                byteArray = mapOfPlugins.get(PluginChoice.getValue()).encode(byteArray);
-                FileOutputStream fw = new FileOutputStream(newPath);
-                fw.write(byteArray);
-                fw.close();
-            } catch (Exception e) {
-                createAlert(Alert.AlertType.ERROR, "File Error", "Error while serialization", "");
-            }
-        }
-    }
-
-    @FXML
-    void onConfirmPluginClick(ActionEvent event) {
-        serialize();
-        encode();
-        changeGUIForSaving(false);
     }
 }
