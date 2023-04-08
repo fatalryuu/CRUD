@@ -14,7 +14,7 @@ public class MainApplication extends Application {
         stStage = stage;
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 811, 518);
-        stage.setTitle("Lab2");
+        stage.setTitle("CRUD");
         stage.setScene(scene);
         stage.show();
     }
