@@ -44,7 +44,11 @@ public class TextSerializer implements Serializer {
                 for (String key : map.keySet()) {
                     String returnType = map.get(key).getReturnType().getSimpleName();
                     if (returnType.equals("int") || returnType.equals("boolean") || returnType.equals("double") || returnType.equals("String")) {
-                        bufferedWriter.write(TAB + key + ARROW + map.get(key).invoke(gadget) + "\n");
+                        String value = String.valueOf(map.get(key).invoke(gadget));
+                        if (value.contains("{")) {
+                            value = value.substring(0, value.indexOf("{")) + "/" + value.substring(value.indexOf("{"));
+                        }
+                        bufferedWriter.write(TAB + key + ARROW + value + "\n");
                     } else {
                         bufferedWriter.write(TAB + key + ARROW + "{\n");
                         bufferedWriter.write(getClassFieldsString(map.get(key).invoke(gadget)));
@@ -92,7 +96,7 @@ public class TextSerializer implements Serializer {
             HashMap<String, String> mapOfTypes = new HashMap<>();
             while (str != null) {
                 str = str.trim();
-                if (str.endsWith("{")) {
+                if (str.endsWith("{") && !str.endsWith("/{")) {
                     classNames.add(getStringBeforeArrow(str));
                     Class<?> clazz = Class.forName(CLASS_NAME_PREFIX + classNames.get(classNames.size() - 1));
                     if (instance == null) {
@@ -121,9 +125,13 @@ public class TextSerializer implements Serializer {
                         case "Integer" -> map.get(field)
                                 .invoke(subInstance != null ? subInstance : instance, Integer.parseInt(value));
 
-                        case "String" -> map.get(field)
-                                .invoke(subInstance != null ? subInstance : instance, value);
-
+                        case "String" -> {
+                            if (value.contains("/{")) {
+                                value = value.substring(0, value.indexOf("/")) + value.substring(value.indexOf("{"));
+                            }
+                            map.get(field)
+                                    .invoke(subInstance != null ? subInstance : instance, value);
+                        }
                         case "Boolean" -> map.get(field)
                                 .invoke(subInstance != null ? subInstance : instance, Boolean.parseBoolean(value));
 
