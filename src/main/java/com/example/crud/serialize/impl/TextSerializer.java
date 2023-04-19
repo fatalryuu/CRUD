@@ -1,7 +1,8 @@
-package com.example.crud.serialize;
+package com.example.crud.serialize.impl;
 
 import com.example.crud.Utils.Maps;
 import com.example.crud.hierarchy.Gadget;
+import com.example.crud.serialize.Serializer;
 import javafx.scene.control.Alert;
 
 import java.io.BufferedReader;
@@ -32,6 +33,16 @@ public class TextSerializer implements Serializer {
             result.append(TAB + TAB).append(key).append(ARROW).append(map.get(key).invoke(obj)).append("\n");
         }
         return result.toString();
+    }
+
+    @Override
+    public String getName() {
+        return "Text Files";
+    }
+
+    @Override
+    public String getExtension() {
+        return "*.txt";
     }
 
     @Override

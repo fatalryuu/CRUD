@@ -1,6 +1,7 @@
-package com.example.crud.serialize;
+package com.example.crud.serialize.impl;
 
 import com.example.crud.hierarchy.*;
+import com.example.crud.serialize.Serializer;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -20,6 +21,16 @@ public class JSONSerializer implements Serializer {
 
     public JSONSerializer() {
 
+    }
+
+    @Override
+    public String getName() {
+        return "JSON Files";
+    }
+
+    @Override
+    public String getExtension() {
+        return "*.json";
     }
 
     @Override

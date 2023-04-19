@@ -1,6 +1,6 @@
 package com.example.crud.factories.serializers;
 
-import com.example.crud.serialize.BinarySerializer;
+import com.example.crud.serialize.impl.BinarySerializer;
 import com.example.crud.serialize.Serializer;
 
 public class BinarySerializerFactory implements SerializerFactory {

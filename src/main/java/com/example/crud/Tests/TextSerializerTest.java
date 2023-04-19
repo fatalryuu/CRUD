@@ -2,7 +2,7 @@ package com.example.crud.Tests;
 
 import com.example.crud.Utils.Maps;
 import com.example.crud.hierarchy.*;
-import com.example.crud.serialize.TextSerializer;
+import com.example.crud.serialize.impl.TextSerializer;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;

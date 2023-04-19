@@ -1,6 +1,7 @@
-package com.example.crud.serialize;
+package com.example.crud.serialize.impl;
 
 import com.example.crud.hierarchy.Gadget;
+import com.example.crud.serialize.Serializer;
 import javafx.scene.control.Alert;
 
 import java.io.*;
@@ -12,6 +13,17 @@ public class BinarySerializer implements Serializer {
     public BinarySerializer() {
 
     }
+
+    @Override
+    public String getName() {
+        return "Binary Files";
+    }
+
+    @Override
+    public String getExtension() {
+        return "*.bin";
+    }
+
     @Override
     public void serialize(ArrayList<Gadget> gadgets, String path) {
         try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(path))) {

@@ -1,22 +1,16 @@
 package com.example.crud.Utils;
 
 import com.example.crud.plugins.Plugin;
+import com.example.crud.serialize.Serializer;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CustomFileChooser {
     private static final Map<String, ArrayList<String>> openingExtensions = new HashMap<>();
-    private static final Map<String, String> savingExtensions = new HashMap<>(
-            Map.of("Text Files", "*.txt",
-                    "JSON Files", "*.json",
-                    "Binary Files", "*.bin")
-    );
+    private static final Map<String, String> savingExtensions = new HashMap<>();
 
     private static void initMap(HashMap<String, Plugin> plugins) {
         for (String key : savingExtensions.keySet()) {
@@ -29,7 +23,26 @@ public class CustomFileChooser {
         }
     }
 
+    private static void initSavingMap() {
+        final String PATH = "src\\main\\java\\com\\example\\crud\\serialize\\impl";
+        final String PREFIX = "com.example.crud.serialize.impl.";
+        try {
+            File folder = new File(PATH);
+            File[] files = folder.listFiles();
+            for (File file : Objects.requireNonNull(files)) {
+                String className = file.getName().substring(0, file.getName().lastIndexOf("."));
+                Class<?> serializer = Class.forName(PREFIX + className);
+                Serializer thisSerializer = (Serializer) serializer.getConstructor().newInstance();
+                savingExtensions.put(thisSerializer.getName(), thisSerializer.getExtension());
+            }
+
+        } catch (Exception ignored) {
+
+        }
+    }
+
     public static File getOpenFile(HashMap<String, Plugin> map) {
+        initSavingMap();
         initMap(map);
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open File");
@@ -46,6 +59,7 @@ public class CustomFileChooser {
     }
 
     public static File getSaveFile() {
+        initSavingMap();
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save File");
         for (String key : savingExtensions.keySet()) {
